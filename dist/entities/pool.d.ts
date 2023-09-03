@@ -58,14 +58,14 @@ export declare class Pool {
      * @param sqrtPriceLimitX96 The Q64.96 sqrt price limit
      * @returns The output amount and the pool with updated state
      */
-    getOutputAmount(inputAmount: CurrencyAmount<Token>, sqrtPriceLimitX96?: JSBI): Promise<[CurrencyAmount<Token>, Pool]>;
+    getOutputAmount(inputAmount: CurrencyAmount<Token>, sqrtPriceLimitX96?: JSBI): [CurrencyAmount<Token>, Pool];
     /**
      * Given a desired output amount of a token, return the computed input amount and a pool with state updated after the trade
      * @param outputAmount the output amount for which to quote the input amount
      * @param sqrtPriceLimitX96 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap
      * @returns The input amount and the pool with updated state
      */
-    getInputAmount(outputAmount: CurrencyAmount<Token>, sqrtPriceLimitX96?: JSBI): Promise<[CurrencyAmount<Token>, Pool]>;
+    getInputAmount(outputAmount: CurrencyAmount<Token>, sqrtPriceLimitX96?: JSBI): [CurrencyAmount<Token>, Pool];
     /**
      * Executes a swap
      * @param zeroForOne Whether the amount in is token0 or token1
