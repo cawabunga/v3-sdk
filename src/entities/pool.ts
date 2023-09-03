@@ -156,15 +156,15 @@ export class Pool {
    * @param sqrtPriceLimitX96 The Q64.96 sqrt price limit
    * @returns The output amount and the pool with updated state
    */
-  public async getOutputAmount(
+  public  getOutputAmount(
     inputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX96?: JSBI
-  ): Promise<[CurrencyAmount<Token>, Pool]> {
+  ): [CurrencyAmount<Token>, Pool] {
     invariant(this.involvesToken(inputAmount.currency), 'TOKEN')
 
     const zeroForOne = inputAmount.currency.equals(this.token0)
 
-    const { amountCalculated: outputAmount, sqrtRatioX96, liquidity, tickCurrent } = await this.swap(
+    const { amountCalculated: outputAmount, sqrtRatioX96, liquidity, tickCurrent } = this.swap(
       zeroForOne,
       inputAmount.quotient,
       sqrtPriceLimitX96
@@ -182,15 +182,15 @@ export class Pool {
    * @param sqrtPriceLimitX96 The Q64.96 sqrt price limit. If zero for one, the price cannot be less than this value after the swap. If one for zero, the price cannot be greater than this value after the swap
    * @returns The input amount and the pool with updated state
    */
-  public async getInputAmount(
+  public  getInputAmount(
     outputAmount: CurrencyAmount<Token>,
     sqrtPriceLimitX96?: JSBI
-  ): Promise<[CurrencyAmount<Token>, Pool]> {
+  ): [CurrencyAmount<Token>, Pool] {
     invariant(outputAmount.currency.isToken && this.involvesToken(outputAmount.currency), 'TOKEN')
 
     const zeroForOne = outputAmount.currency.equals(this.token1)
 
-    const { amountCalculated: inputAmount, sqrtRatioX96, liquidity, tickCurrent } = await this.swap(
+    const { amountCalculated: inputAmount, sqrtRatioX96, liquidity, tickCurrent } = this.swap(
       zeroForOne,
       JSBI.multiply(outputAmount.quotient, NEGATIVE_ONE),
       sqrtPriceLimitX96
@@ -212,11 +212,11 @@ export class Pool {
    * @returns liquidity
    * @returns tickCurrent
    */
-  private async swap(
+  private swap(
     zeroForOne: boolean,
     amountSpecified: JSBI,
     sqrtPriceLimitX96?: JSBI
-  ): Promise<{ amountCalculated: JSBI; sqrtRatioX96: JSBI; liquidity: JSBI; tickCurrent: number }> {
+  ): { amountCalculated: JSBI; sqrtRatioX96: JSBI; liquidity: JSBI; tickCurrent: number } {
     if (!sqrtPriceLimitX96)
       sqrtPriceLimitX96 = zeroForOne
         ? JSBI.add(TickMath.MIN_SQRT_RATIO, ONE)
@@ -250,7 +250,7 @@ export class Pool {
       // because each iteration of the while loop rounds, we can't optimize this code (relative to the smart contract)
       // by simply traversing to the next available tick, we instead need to exactly replicate
       // tickBitmap.nextInitializedTickWithinOneWord
-      ;[step.tickNext, step.initialized] = await this.tickDataProvider.nextInitializedTickWithinOneWord(
+      ;[step.tickNext, step.initialized] = this.tickDataProvider.nextInitializedTickWithinOneWord(
         state.tick,
         zeroForOne,
         this.tickSpacing
@@ -290,7 +290,7 @@ export class Pool {
       if (JSBI.equal(state.sqrtPriceX96, step.sqrtPriceNextX96)) {
         // if the tick is initialized, run the tick transition
         if (step.initialized) {
-          let liquidityNet = JSBI.BigInt((await this.tickDataProvider.getTick(step.tickNext)).liquidityNet)
+          let liquidityNet = JSBI.BigInt((this.tickDataProvider.getTick(step.tickNext)).liquidityNet)
           // if we're moving leftward, we interpret liquidityNet as the opposite sign
           // safe because liquidityNet cannot be type(int128).min
           if (zeroForOne) liquidityNet = JSBI.multiply(liquidityNet, NEGATIVE_ONE)
